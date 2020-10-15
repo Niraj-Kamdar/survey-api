@@ -1,16 +1,24 @@
 import re
 from datetime import timedelta
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi import status
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from . import ACCESS_TOKEN_EXPIRE_MINUTES, models, schemas
-from .crud import (authenticate_user, create_db_user, get_current_active_user,
-                   get_db_user)
+from . import ACCESS_TOKEN_EXPIRE_MINUTES
+from . import models
+from . import schemas
+from .crud import authenticate_user
+from .crud import create_db_user
+from .crud import get_current_active_user
+from .crud import get_db_user
 from .database import engine
-from .utils import create_access_token, get_db
+from .utils import create_access_token
+from .utils import get_db
 
 models.Base.metadata.create_all(bind=engine)
 
