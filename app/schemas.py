@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -14,10 +16,61 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    disabled: bool
+    disabled: bool = Field(..., example=False)
 
     class Config:
         orm_mode = True
+
+
+class SurveyBase(BaseModel):
+    title: str
+    description: str
+
+
+class SurveyCreate(SurveyBase):
+    questions: List[str]
+
+
+class Survey(SurveyBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class TakeSurvey(BaseModel):
+    questions: Dict[str, bool]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "questions": {
+                    "Do you like Object-Oriented Programming?": True,
+                    "Are you proficient in Java?": False
+                }
+            }
+        }
+
+
+class UserResponse(BaseModel):
+    username: str
+    response: Dict[str, bool]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "username": "john37",
+                "response": {
+                    "Do you like Object-Oriented Programming?": True,
+                    "Are you proficient in Java?": False
+                }
+            }
+        }
+
+
+class SurveyResult(SurveyBase):
+    responses: List[UserResponse]
 
 
 class Token(BaseModel):
