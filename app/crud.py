@@ -17,9 +17,8 @@ from .utils import verify_password
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-async def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
-):
+async def get_current_user(db: Session = Depends(get_db),
+                           token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -39,15 +38,15 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: models.User = Depends(get_current_user),
-):
+        current_user: models.User = Depends(get_current_user), ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 def get_db_user(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+    return db.query(
+        models.User).filter(models.User.username == username).first()
 
 
 def authenticate_user(db: Session, username: str, password: str):
