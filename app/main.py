@@ -7,19 +7,25 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from . import schemas, ACCESS_TOKEN_EXPIRE_MINUTES, models
-from .crud import authenticate_user, get_current_active_user, get_db_user, create_db_user
+from .crud import (
+    authenticate_user,
+    get_current_active_user,
+    get_db_user,
+    create_db_user,
+)
 from .database import engine
 from .utils import create_access_token, get_db
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-validate_email = re.compile(
-    r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+validate_email = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
 
 @app.post("/token", response_model=schemas.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -34,9 +40,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post("/users/", response_model=schemas.UserBase, responses={
-    400: {"description": "Invalid request body!", "model": schemas.Message},
-})
+@app.post(
+    "/users/",
+    response_model=schemas.UserBase,
+    responses={
+        400: {"description": "Invalid request body!", "model": schemas.Message},
+    },
+)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Creates new user with the following information:
@@ -50,8 +60,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         if db_user:
             return JSONResponse(
                 status_code=400,
-                content={
-                    "message": f"Username: {user.username} already registered"},
+                content={"message": f"Username: {user.username} already registered"},
             )
         db_user = create_db_user(db=db, user=user)
         return db_user.dict()
