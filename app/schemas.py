@@ -1,7 +1,6 @@
-from typing import List, Dict
+from typing import Dict, List
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
