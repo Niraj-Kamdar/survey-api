@@ -47,7 +47,7 @@ class TakeSurvey(BaseModel):
             "example": {
                 "questions": {
                     "Do you like Object-Oriented Programming?": True,
-                    "Are you proficient in Java?": False
+                    "Are you proficient in Java?": False,
                 }
             }
         }
@@ -63,8 +63,8 @@ class UserResponse(BaseModel):
                 "username": "john37",
                 "response": {
                     "Do you like Object-Oriented Programming?": True,
-                    "Are you proficient in Java?": False
-                }
+                    "Are you proficient in Java?": False,
+                },
             }
         }
 
