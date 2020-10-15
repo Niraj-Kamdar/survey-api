@@ -94,8 +94,7 @@ async def create_survey(
         db: Session = Depends(get_db),
         current_user: models.User = Depends(crud.get_current_active_user),
 ):
-    db_survey = crud.create_db_survey(db, current_user, survey)
-    return db_survey
+    return crud.create_db_survey(db, current_user, survey)
 
 
 @app.put("/surveys/{survey_id}", response_model=schemas.Message)
