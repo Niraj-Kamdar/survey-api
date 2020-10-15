@@ -78,7 +78,8 @@ def create_db_survey(db: Session, current_user: models.User, survey: schemas.Sur
     db.commit()
     db.refresh(db_survey)
     for question in survey.questions:
-        db_question = models.Question(question=question, survey_id=db_survey.id)
+        db_question = models.Question(
+            question=question, survey_id=db_survey.id)
         db.add(db_question)
         db.commit()
     return db_survey
@@ -88,7 +89,8 @@ def create_db_response(db: Session,
                        current_user: models.User,
                        survey_id: int,
                        survey: schemas.TakeSurvey):
-    questions = db.query(models.Question).filter(models.Question.survey_id == survey_id).all()
+    questions = db.query(models.Question).filter(
+        models.Question.survey_id == survey_id).all()
     answers = survey.questions
     for question in questions:
         db_response = models.Response(answer=answers[question.question], question_id=question.id,

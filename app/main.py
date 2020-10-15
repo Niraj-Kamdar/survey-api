@@ -105,7 +105,7 @@ async def take_survey(survey_id: int, survey: schemas.TakeSurvey, db: Session = 
     return {"message": "Your response has been registered successfully!"}
 
 
-@app.get("/surveys/{survey_id}")#, response_model=schemas.SurveyResult)
+@app.get("/surveys/{survey_id}")  # , response_model=schemas.SurveyResult)
 async def view_survey_result(
         survey_id: int,
         db: Session = Depends(get_db),
