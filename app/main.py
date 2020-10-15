@@ -6,13 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from . import schemas, ACCESS_TOKEN_EXPIRE_MINUTES, models
-from .crud import (
-    authenticate_user,
-    get_current_active_user,
-    get_db_user,
-    create_db_user,
-)
+from . import ACCESS_TOKEN_EXPIRE_MINUTES, models, schemas
+from .crud import (authenticate_user, create_db_user, get_current_active_user,
+                   get_db_user)
 from .database import engine
 from .utils import create_access_token, get_db
 
