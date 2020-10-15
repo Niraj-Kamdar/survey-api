@@ -77,8 +77,8 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/users/me/", response_model=schemas.User)
-async def read_users_me(
-        current_user: models.User = Depends(crud.get_current_active_user)):
+async def read_users_me(current_user: models.User = Depends(
+        crud.get_current_active_user), ):
     """
     Returns information of current user:
     - **username** - username of the user that will be used for login
@@ -98,16 +98,20 @@ async def create_survey(
 
 
 @app.put("/surveys/{survey_id}", response_model=schemas.Message)
-async def take_survey(survey_id: int, survey: schemas.TakeSurvey, db: Session = Depends(get_db),
-                      current_user: models.User = Depends(crud.get_current_active_user), ):
+async def take_survey(
+        survey_id: int,
+        survey: schemas.TakeSurvey,
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(crud.get_current_active_user),
+):
     crud.create_db_response(db, current_user, survey_id, survey)
     return {"message": "Your response has been registered successfully!"}
 
 
-@app.get("/surveys/{survey_id}")#, response_model=schemas.SurveyResult)
+@app.get("/surveys/{survey_id}")  # , response_model=schemas.SurveyResult)
 async def view_survey_result(
         survey_id: int,
         db: Session = Depends(get_db),
-        current_user: models.User = Depends(crud.get_current_active_user)
+        current_user: models.User = Depends(crud.get_current_active_user),
 ):
     return crud.get_survey_result(db, survey_id)

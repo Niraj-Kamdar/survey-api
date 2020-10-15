@@ -1,4 +1,5 @@
-from typing import List, Dict
+from typing import Dict
+from typing import List
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -47,7 +48,7 @@ class TakeSurvey(BaseModel):
             "example": {
                 "questions": {
                     "Do you like Object-Oriented Programming?": True,
-                    "Are you proficient in Java?": False
+                    "Are you proficient in Java?": False,
                 }
             }
         }
@@ -63,8 +64,8 @@ class UserResponse(BaseModel):
                 "username": "john37",
                 "response": {
                     "Do you like Object-Oriented Programming?": True,
-                    "Are you proficient in Java?": False
-                }
+                    "Are you proficient in Java?": False,
+                },
             }
         }
 

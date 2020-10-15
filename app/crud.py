@@ -4,14 +4,14 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
 from jose import jwt
+from jose import JWTError
 from sqlalchemy.orm import Session
 
 from . import ALGORITHM
-from . import SECRET_KEY
 from . import models
 from . import schemas
+from . import SECRET_KEY
 from .utils import get_db
 from .utils import get_password_hash
 from .utils import verify_password
@@ -70,7 +70,8 @@ def create_db_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def create_db_survey(db: Session, current_user: models.User, survey: schemas.SurveyCreate):
+def create_db_survey(db: Session, current_user: models.User,
+                     survey: schemas.SurveyCreate):
     dict_survey = survey.dict(exclude={"questions"})
     dict_survey["owner_id"] = current_user.id
     db_survey = models.Survey(**dict_survey)
@@ -78,31 +79,32 @@ def create_db_survey(db: Session, current_user: models.User, survey: schemas.Sur
     db.commit()
     db.refresh(db_survey)
     for question in survey.questions:
-        db_question = models.Question(question=question, survey_id=db_survey.id)
+        db_question = models.Question(question=question,
+                                      survey_id=db_survey.id)
         db.add(db_question)
         db.commit()
     return db_survey
 
 
-def create_db_response(db: Session,
-                       current_user: models.User,
-                       survey_id: int,
+def create_db_response(db: Session, current_user: models.User, survey_id: int,
                        survey: schemas.TakeSurvey):
-    questions = db.query(models.Question).filter(models.Question.survey_id == survey_id).all()
+    questions = (db.query(
+        models.Question).filter(models.Question.survey_id == survey_id).all())
     answers = survey.questions
     for question in questions:
-        db_response = models.Response(answer=answers[question.question], question_id=question.id,
-                                      user_id=current_user.id)
+        db_response = models.Response(
+            answer=answers[question.question],
+            question_id=question.id,
+            user_id=current_user.id,
+        )
         db.add(db_response)
         db.commit()
 
 
 def get_survey_result(db: Session, survey_id: int):
-    questions = db.query(models.Question).join(
-        models.Question.responses
-    ).filter(
-        models.Question.survey_id == survey_id
-    ).all()
+    questions = (db.query(models.Question).join(
+        models.Question.responses).filter(
+            models.Question.survey_id == survey_id).all())
     result = defaultdict(dict)
     for question in questions:
         for response in question.responses:
