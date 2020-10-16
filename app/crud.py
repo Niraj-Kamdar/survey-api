@@ -4,14 +4,14 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
 from jose import JWTError
+from jose import jwt
 from sqlalchemy.orm import Session
 
 from . import ALGORITHM
+from . import SECRET_KEY
 from . import models
 from . import schemas
-from . import SECRET_KEY
 from .utils import get_db
 from .utils import get_password_hash
 from .utils import verify_password
@@ -104,9 +104,21 @@ def create_db_response(db: Session, current_user: models.User, survey_id: int,
 def get_survey_result(db: Session, survey_id: int):
     questions = (db.query(models.Question).join(
         models.Question.responses).filter(
-            models.Question.survey_id == survey_id).all())
+        models.Question.survey_id == survey_id).all())
     result = defaultdict(dict)
+    stats = defaultdict(schemas.SurveyStats)
     for question in questions:
         for response in question.responses:
+            stats[question.question].total += 1
+            stats[question.question].agree += response.answer
             result[response.user.username][question.question] = response.answer
-    return result
+        stats[question.question].percentage = (
+                                                      stats[question.question].agree /
+                                                      stats[question.question].total
+                                              ) * 100
+    responses = []
+    for username, response in result.items():
+        responses.append(schemas.UserResponse(username=username, response=response))
+    survey = db.query(models.Survey).filter(models.Survey.id == survey_id).first()
+    survey_result = schemas.SurveyResult(title=survey.title, description=survey.description, stats=stats, responses=responses)
+    return survey_result

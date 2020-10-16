@@ -70,8 +70,15 @@ class UserResponse(BaseModel):
         }
 
 
+class SurveyStats(BaseModel):
+    total: int = 0
+    agree: int = 0
+    percentage: float = 0
+
+
 class SurveyResult(SurveyBase):
     responses: List[UserResponse]
+    stats: Dict[str, SurveyStats]
 
 
 class Token(BaseModel):
