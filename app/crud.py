@@ -19,9 +19,8 @@ from .utils import verify_password
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-async def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
-):
+async def get_current_user(db: Session = Depends(get_db),
+                           token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,15 +40,15 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: models.User = Depends(get_current_user),
-):
+        current_user: models.User = Depends(get_current_user), ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 def get_db_user(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+    return db.query(
+        models.User).filter(models.User.username == username).first()
 
 
 def authenticate_user(db: Session, username: str, password: str):
@@ -71,9 +70,8 @@ def create_db_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def create_db_survey(
-    db: Session, current_user: models.User, survey: schemas.SurveyCreate
-):
+def create_db_survey(db: Session, current_user: models.User,
+                     survey: schemas.SurveyCreate):
     dict_survey = survey.dict(exclude={"questions"})
     dict_survey["owner_id"] = current_user.id
     db_survey = models.Survey(**dict_survey)
@@ -81,35 +79,32 @@ def create_db_survey(
     db.commit()
     db.refresh(db_survey)
     for question in survey.questions:
-        db_question = models.Question(question=question, survey_id=db_survey.id)
+        db_question = models.Question(question=question,
+                                      survey_id=db_survey.id)
         db.add(db_question)
         db.commit()
     return db_survey
 
 
-def create_db_response(
-    db: Session, current_user: models.User, survey_id: int, survey: schemas.TakeSurvey
-):
-    db_survey = db.query(models.Survey).filter(models.Survey.id == survey_id).first()
+def create_db_response(db: Session, current_user: models.User, survey_id: int,
+                       survey: schemas.TakeSurvey):
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
 
     if not db_survey:
         raise HTTPException(status_code=404, detail="Invalid survey_id")
 
-    questions = (
-        db.query(models.Question).filter(models.Question.survey_id == survey_id).all()
-    )
+    questions = (db.query(
+        models.Question).filter(models.Question.survey_id == survey_id).all())
     answers = survey.questions
     for question in questions:
-        db_response = (
-            db.query(models.Response)
-            .filter(
-                models.Response.user_id == current_user.id,
-                models.Response.question_id == question.id,
-            )
-            .first()
-        )
+        db_response = (db.query(models.Response).filter(
+            models.Response.user_id == current_user.id,
+            models.Response.question_id == question.id,
+        ).first())
         if db_response:
-            db_response.answer = answers.get(question.question) or db_response.answer
+            db_response.answer = answers.get(
+                question.question) or db_response.answer
         elif answers.get(question.question) is not None:
             db_response = models.Response(
                 answer=answers.get(question.question),
@@ -121,17 +116,15 @@ def create_db_response(
 
 
 def get_survey_result(db: Session, survey_id: int):
-    db_survey = db.query(models.Survey).filter(models.Survey.id == survey_id).first()
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
 
     if not db_survey:
         raise HTTPException(status_code=404, detail="Invalid survey_id")
 
-    questions = (
-        db.query(models.Question)
-        .join(models.Question.responses)
-        .filter(models.Question.survey_id == survey_id)
-        .all()
-    )
+    questions = (db.query(models.Question).join(
+        models.Question.responses).filter(
+            models.Question.survey_id == survey_id).all())
     result = defaultdict(dict)
     stats = defaultdict(schemas.SurveyStats)
     for question in questions:
@@ -140,8 +133,8 @@ def get_survey_result(db: Session, survey_id: int):
             stats[question.question].agree += response.answer
             result[response.user.username][question.question] = response.answer
         stats[question.question].percentage = (
-            stats[question.question].agree / stats[question.question].total
-        ) * 100
+            stats[question.question].agree /
+            stats[question.question].total) * 100
     responses = [
         schemas.UserResponse(username=username, response=response)
         for username, response in result.items()

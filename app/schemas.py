@@ -34,8 +34,10 @@ class SurveyCreate(SurveyBase):
     class Config:
         schema_extra = {
             "example": {
-                "title": "Programmer Survey",
-                "description": "Annual Programmer survey",
+                "title":
+                "Programmer Survey",
+                "description":
+                "Annual Programmer survey",
                 "questions": [
                     "Do you like Object-Oriented Programming?",
                     "Are you proficient in Java?",
@@ -95,17 +97,17 @@ class SurveyResult(SurveyBase):
     class Config:
         schema_extra = {
             "example": {
-                "title": "Programmer Survey",
-                "description": "Annual Programmer survey",
-                "responses": [
-                    {
-                        "username": "john37",
-                        "response": {
-                            "Do you like Object-Oriented Programming?": True,
-                            "Are you proficient in Java?": False,
-                        },
-                    }
-                ],
+                "title":
+                "Programmer Survey",
+                "description":
+                "Annual Programmer survey",
+                "responses": [{
+                    "username": "john37",
+                    "response": {
+                        "Do you like Object-Oriented Programming?": True,
+                        "Are you proficient in Java?": False,
+                    },
+                }],
                 "stats": {
                     "Do you like Object-Oriented Programming?": {
                         "total": 1,
