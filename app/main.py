@@ -12,7 +12,8 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from . import ACCESS_TOKEN_EXPIRE_MINUTES, APP_PATH
+from . import ACCESS_TOKEN_EXPIRE_MINUTES
+from . import APP_PATH
 from . import crud
 from . import models
 from . import schemas
@@ -90,7 +91,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.get("/users/me/", response_model=schemas.User)
 async def read_users_me(current_user: models.User = Depends(
-    crud.get_current_active_user), ):
+        crud.get_current_active_user), ):
     """
     Returns information of current user:
     - **username** - username of the user that will be used for login
