@@ -102,7 +102,8 @@ def create_db_response(db: Session, current_user: models.User, survey_id: int,
             models.Response.user_id == current_user.id,
             models.Response.question_id == question.id).first()
         if db_response:
-            db_response.answer = answers.get(question.question) or db_response.answer
+            db_response.answer = answers.get(
+                question.question) or db_response.answer
         elif answers.get(question.question) is not None:
             db_response = models.Response(
                 answer=answers.get(question.question),
