@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
@@ -66,3 +68,81 @@ def create_db_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def create_db_survey(db: Session, current_user: models.User,
+                     survey: schemas.SurveyCreate):
+    dict_survey = survey.dict(exclude={"questions"})
+    dict_survey["owner_id"] = current_user.id
+    db_survey = models.Survey(**dict_survey)
+    db.add(db_survey)
+    db.commit()
+    db.refresh(db_survey)
+    for question in survey.questions:
+        db_question = models.Question(question=question,
+                                      survey_id=db_survey.id)
+        db.add(db_question)
+        db.commit()
+    return db_survey
+
+
+def create_db_response(db: Session, current_user: models.User, survey_id: int,
+                       survey: schemas.TakeSurvey):
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
+
+    if not db_survey:
+        raise HTTPException(status_code=404, detail="Invalid survey_id")
+
+    questions = (db.query(
+        models.Question).filter(models.Question.survey_id == survey_id).all())
+    answers = survey.questions
+    for question in questions:
+        db_response = (db.query(models.Response).filter(
+            models.Response.user_id == current_user.id,
+            models.Response.question_id == question.id,
+        ).first())
+        if db_response:
+            db_response.answer = answers.get(
+                question.question) or db_response.answer
+        elif answers.get(question.question) is not None:
+            db_response = models.Response(
+                answer=answers.get(question.question),
+                question_id=question.id,
+                user_id=current_user.id,
+            )
+            db.add(db_response)
+        db.commit()
+
+
+def get_survey_result(db: Session, survey_id: int):
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
+
+    if not db_survey:
+        raise HTTPException(status_code=404, detail="Invalid survey_id")
+
+    questions = (db.query(models.Question).join(
+        models.Question.responses).filter(
+            models.Question.survey_id == survey_id).all())
+    result = defaultdict(dict)
+    stats = defaultdict(schemas.SurveyStats)
+    for question in questions:
+        for response in question.responses:
+            stats[question.question].total += 1
+            stats[question.question].agree += response.answer
+            result[response.user.username][question.question] = response.answer
+        stats[question.question].percentage = (
+            stats[question.question].agree /
+            stats[question.question].total) * 100
+    responses = [
+        schemas.UserResponse(username=username, response=response)
+        for username, response in result.items()
+    ]
+
+    return schemas.SurveyResult(
+        title=db_survey.title,
+        description=db_survey.description,
+        stats=stats,
+        responses=responses,
+    )
