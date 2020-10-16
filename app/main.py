@@ -32,7 +32,7 @@ validate_email = re.compile(
 async def index():
     """ Index page of the website """
     index_path = os.path.join(APP_PATH, "static", "index.html")
-    with aiofiles.open(index_path, "r") as f:
+    async with aiofiles.open(index_path, "r") as f:
         html = await f.read()
     return HTMLResponse(content=html, status_code=200)
 
