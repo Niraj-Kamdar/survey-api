@@ -90,7 +90,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.get("/users/me/", response_model=schemas.User)
 async def read_users_me(current_user: models.User = Depends(
-    crud.get_current_active_user), ):
+        crud.get_current_active_user), ):
     """
     Returns information of current user:
     - **username** - username of the user that will be used for login
