@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survey REST API</title>
+    <style>
+        body {
+            background-color: lightgrey;
+            color: black;
+        }
+        code {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+<h1> Survey REST API </h1>
+
+<p> This is a REST API service which allows creating, taking and viewing survey. You can try it live on <a href="https://survey-rest-api.herokuapp.com/">survey-rest-api.herokuapp.com.</a></p>
+
+
+<h2> Usage </h2>
+
+<p>You can see documentation of API in both <a href="https://survey-rest-api.herokuapp.com/docs">swagger</a> and <a href="https://survey-rest-api.herokuapp.com/redoc">redoc</a> style.</p>
+
+<h3> How to use it? </h3>
+
+
+<ul>
+    <li>Create a new user account by <strong>POST</strong> request to <code>/users</code> endpoint.</li>
+    <li>Create new token by <strong>POST</strong> request to <code>/token</code> endpoint.</li>
+    <li>You can create new survey by <strong>POST</strong> request to <code>/surveys</code> endpoint.</li>
+    <li>You can take or update response of a survey by <strong>PUT</strong> request to <code>/surveys/{survey_id}</code> endpoint.</li>
+    <li>You can view responses of any survey by <strong>GET</strong> request to <code>/surveys/{survey_id}</code> endpoint.</li>
+</ul>
+
+</body>
+</html>
