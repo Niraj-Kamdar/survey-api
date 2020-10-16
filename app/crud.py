@@ -103,8 +103,8 @@ def create_db_response(db: Session, current_user: models.User, survey_id: int,
             models.Response.question_id == question.id,
         ).first())
         if db_response:
-            db_response.answer = answers.get(
-                question.question) or db_response.answer
+            new_answer = answers.get(question.question)
+            db_response.answer = new_answer if new_answer is not None else db_response.answer
         elif answers.get(question.question) is not None:
             db_response = models.Response(
                 answer=answers.get(question.question),
@@ -132,9 +132,9 @@ def get_survey_result(db: Session, survey_id: int):
             stats[question.question].total += 1
             stats[question.question].agree += response.answer
             result[response.user.username][question.question] = response.answer
-        stats[question.question].percentage = (
+        stats[question.question].percentage = round((
             stats[question.question].agree /
-            stats[question.question].total) * 100
+            stats[question.question].total) * 100, 2)
     responses = [
         schemas.UserResponse(username=username, response=response)
         for username, response in result.items()
