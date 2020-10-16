@@ -98,11 +98,13 @@ def create_db_response(db: Session, current_user: models.User, survey_id: int,
         models.Question).filter(models.Question.survey_id == survey_id).all())
     answers = survey.questions
     for question in questions:
-        db_response = db.query(models.Response).filter(
+        db_response = (db.query(models.Response).filter(
             models.Response.user_id == current_user.id,
-            models.Response.question_id == question.id).first()
+            models.Response.question_id == question.id,
+        ).first())
         if db_response:
-            db_response.answer = answers.get(question.question) or db_response.answer
+            db_response.answer = answers.get(
+                question.question) or db_response.answer
         elif answers.get(question.question) is not None:
             db_response = models.Response(
                 answer=answers.get(question.question),
