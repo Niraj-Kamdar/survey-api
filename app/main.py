@@ -1,15 +1,18 @@
+import os
 import re
 from datetime import timedelta
 
+import aiofiles
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import status
+from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from . import ACCESS_TOKEN_EXPIRE_MINUTES
+from . import ACCESS_TOKEN_EXPIRE_MINUTES, APP_PATH
 from . import crud
 from . import models
 from . import schemas
@@ -22,6 +25,15 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 validate_email = re.compile(
     r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    """ Index page of the website """
+    index_path = os.path.join(APP_PATH, "static", "index.html")
+    with aiofiles.open(index_path, "r") as f:
+        html = await f.read()
+    return HTMLResponse(content=html, status_code=200)
 
 
 @app.post("/token", response_model=schemas.Token)
@@ -78,7 +90,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.get("/users/me/", response_model=schemas.User)
 async def read_users_me(current_user: models.User = Depends(
-        crud.get_current_active_user), ):
+    crud.get_current_active_user), ):
     """
     Returns information of current user:
     - **username** - username of the user that will be used for login
