@@ -116,9 +116,15 @@ def get_survey_result(db: Session, survey_id: int):
                                                       stats[question.question].agree /
                                                       stats[question.question].total
                                               ) * 100
-    responses = []
-    for username, response in result.items():
-        responses.append(schemas.UserResponse(username=username, response=response))
+    responses = [
+        schemas.UserResponse(username=username, response=response)
+        for username, response in result.items()
+    ]
+
     survey = db.query(models.Survey).filter(models.Survey.id == survey_id).first()
-    survey_result = schemas.SurveyResult(title=survey.title, description=survey.description, stats=stats, responses=responses)
-    return survey_result
+    return schemas.SurveyResult(
+        title=survey.title,
+        description=survey.description,
+        stats=stats,
+        responses=responses,
+    )
