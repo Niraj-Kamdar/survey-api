@@ -113,15 +113,16 @@ def get_survey_result(db: Session, survey_id: int):
             stats[question.question].agree += response.answer
             result[response.user.username][question.question] = response.answer
         stats[question.question].percentage = (
-                                                      stats[question.question].agree /
-                                                      stats[question.question].total
-                                              ) * 100
+            stats[question.question].agree /
+            stats[question.question].total
+        ) * 100
     responses = [
         schemas.UserResponse(username=username, response=response)
         for username, response in result.items()
     ]
 
-    survey = db.query(models.Survey).filter(models.Survey.id == survey_id).first()
+    survey = db.query(models.Survey).filter(
+        models.Survey.id == survey_id).first()
     return schemas.SurveyResult(
         title=survey.title,
         description=survey.description,
