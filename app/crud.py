@@ -88,20 +88,38 @@ def create_db_survey(db: Session, current_user: models.User,
 
 def create_db_response(db: Session, current_user: models.User, survey_id: int,
                        survey: schemas.TakeSurvey):
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
+
+    if not db_survey:
+        raise HTTPException(status_code=404, detail="Invalid survey_id")
+
     questions = (db.query(
         models.Question).filter(models.Question.survey_id == survey_id).all())
     answers = survey.questions
     for question in questions:
-        db_response = models.Response(
-            answer=answers[question.question],
-            question_id=question.id,
-            user_id=current_user.id,
-        )
-        db.add(db_response)
+        db_response = db.query(models.Response).filter(
+            models.Response.user_id == current_user.id,
+            models.Response.question_id == question.id).first()
+        if db_response:
+            db_response.answer = answers.get(question.question) or db_response.answer
+        elif answers.get(question.question) is not None:
+            db_response = models.Response(
+                answer=answers.get(question.question),
+                question_id=question.id,
+                user_id=current_user.id,
+            )
+            db.add(db_response)
         db.commit()
 
 
 def get_survey_result(db: Session, survey_id: int):
+    db_survey = db.query(
+        models.Survey).filter(models.Survey.id == survey_id).first()
+
+    if not db_survey:
+        raise HTTPException(status_code=404, detail="Invalid survey_id")
+
     questions = (db.query(models.Question).join(
         models.Question.responses).filter(
             models.Question.survey_id == survey_id).all())
@@ -120,11 +138,9 @@ def get_survey_result(db: Session, survey_id: int):
         for username, response in result.items()
     ]
 
-    survey = db.query(
-        models.Survey).filter(models.Survey.id == survey_id).first()
     return schemas.SurveyResult(
-        title=survey.title,
-        description=survey.description,
+        title=db_survey.title,
+        description=db_survey.description,
         stats=stats,
         responses=responses,
     )

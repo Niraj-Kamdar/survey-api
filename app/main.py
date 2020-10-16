@@ -94,6 +94,14 @@ async def create_survey(
         db: Session = Depends(get_db),
         current_user: models.User = Depends(crud.get_current_active_user),
 ):
+    """
+    Creates new survey with the following information:
+    - **title** - title of the survey
+    - **description** - description about the survey
+    - **questions**: questions you want to ask in the survey
+
+    Response will contain id of the newly created survey which can be used to take and view survey.
+    """
     return crud.create_db_survey(db, current_user, survey)
 
 
@@ -104,14 +112,20 @@ async def take_survey(
         db: Session = Depends(get_db),
         current_user: models.User = Depends(crud.get_current_active_user),
 ):
+    """
+    Adds or updates response for the survey of the given **survey_id** with the answers submitted by you:
+    """
     crud.create_db_response(db, current_user, survey_id, survey)
     return {"message": "Your response has been registered successfully!"}
 
 
-@app.get("/surveys/{survey_id}")  # , response_model=schemas.SurveyResult)
+@app.get("/surveys/{survey_id}", response_model=schemas.SurveyResult)
 async def view_survey_result(
         survey_id: int,
         db: Session = Depends(get_db),
         current_user: models.User = Depends(crud.get_current_active_user),
 ):
+    """
+    Shows survey result with each individual responses and statistics of each questions.
+    """
     return crud.get_survey_result(db, survey_id)

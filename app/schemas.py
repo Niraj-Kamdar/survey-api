@@ -31,6 +31,18 @@ class SurveyBase(BaseModel):
 class SurveyCreate(SurveyBase):
     questions: List[str]
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "title": "Programmer Survey",
+                "description": "Annual Programmer survey",
+                "questions": [
+                    "Do you like Object-Oriented Programming?",
+                    "Are you proficient in Java?",
+                ]
+            }
+        }
+
 
 class Survey(SurveyBase):
     id: int
@@ -79,6 +91,35 @@ class SurveyStats(BaseModel):
 class SurveyResult(SurveyBase):
     responses: List[UserResponse]
     stats: Dict[str, SurveyStats]
+
+    class Config:
+        schema_extra = {
+            "example": {
+              "title": "Programmer Survey",
+              "description": "Annual Programmer survey",
+              "responses": [
+                {
+                  "username": "john37",
+                  "response": {
+                    "Do you like Object-Oriented Programming?": True,
+                    "Are you proficient in Java?": False
+                  }
+                }
+              ],
+              "stats": {
+                "Do you like Object-Oriented Programming?": {
+                  "total": 1,
+                  "agree": 1,
+                  "percentage": 100
+                },
+                "Are you proficient in Java?": {
+                  "total": 1,
+                  "agree": 0,
+                  "percentage": 0
+                }
+              }
+            }
+        }
 
 
 class Token(BaseModel):
