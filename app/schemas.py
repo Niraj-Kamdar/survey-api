@@ -39,7 +39,7 @@ class SurveyCreate(SurveyBase):
                 "questions": [
                     "Do you like Object-Oriented Programming?",
                     "Are you proficient in Java?",
-                ]
+                ],
             }
         }
 
@@ -102,22 +102,22 @@ class SurveyResult(SurveyBase):
                         "username": "john37",
                         "response": {
                             "Do you like Object-Oriented Programming?": True,
-                            "Are you proficient in Java?": False
-                        }
+                            "Are you proficient in Java?": False,
+                        },
                     }
                 ],
                 "stats": {
                     "Do you like Object-Oriented Programming?": {
                         "total": 1,
                         "agree": 1,
-                        "percentage": 100
+                        "percentage": 100,
                     },
                     "Are you proficient in Java?": {
                         "total": 1,
                         "agree": 0,
-                        "percentage": 0
-                    }
-                }
+                        "percentage": 0,
+                    },
+                },
             }
         }
 
